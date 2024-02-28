@@ -3,6 +3,7 @@ from flask import Blueprint
 # Create Blueprint object
 auth = Blueprint('auth', __name__)
 
+
 # Sample
 @auth.route('/')
 def authenticate():
