@@ -1,8 +1,7 @@
 from flask import Flask
+from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
-from .services import services
-from .auth import auth
 import secrets
 import os
 
@@ -16,10 +15,17 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 db = SQLAlchemy()
 
 
+# Create bcrypt object outside to be imported by other files
+bcrypt = Bcrypt()
+
+
 # To create the flask app with settings
 def create_app():
     # Create Flask instance named app
     app = Flask(__name__)
+
+    # Initialize bcrypt object
+    bcrypt.init_app(app)
 
     # Generate random strings of 32 hexadecimal characters for SECRET_KEY of app
     app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -28,11 +34,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     db.init_app(app)
 
-    # Register the blueprints
-    app.register_blueprint(services, url_prefix="/")
-    app.register_blueprint(auth, url_prefix="/auth/")
-
-    # T create tables for the database
+    # To create tables for the database
     # from .models import User, Category, Expense, Budget, Notification
     # # Create the application context
     # with app.app_context():
