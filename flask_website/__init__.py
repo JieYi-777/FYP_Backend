@@ -32,4 +32,11 @@ def create_app():
     app.register_blueprint(services, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/auth/")
 
+    # T create tables for the database
+    # from .models import User, Category, Expense, Budget, Notification
+    # # Create the application context
+    # with app.app_context():
+    #     # Create all tables
+    #     db.create_all()
+
     return app

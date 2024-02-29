@@ -44,7 +44,7 @@ class Expense(db.Model):
 
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    amount = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
     unlimited = db.Column(db.Boolean, default=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
