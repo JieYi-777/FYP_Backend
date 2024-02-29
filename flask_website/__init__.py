@@ -12,6 +12,7 @@ load_dotenv()
 # Get values from environment variables
 DATABASE_URL = os.getenv('DATABASE_URL')
 
+# Define db outside so can be imported by models.py
 db = SQLAlchemy()
 
 
@@ -23,7 +24,7 @@ def create_app():
     # Generate random strings of 32 hexadecimal characters for SECRET_KEY of app
     app.config['SECRET_KEY'] = secrets.token_hex(16)
 
-    # Set Database URI for Flask app
+    # Set Database URI for Flask app and initialize the app
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     db.init_app(app)
 
