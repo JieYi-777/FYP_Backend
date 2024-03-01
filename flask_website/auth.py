@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from sqlalchemy.exc import SQLAlchemyError
+from flask_login import login_user, logout_user
 from .models import User, Notification
 from . import bcrypt, db
 import logging
@@ -11,6 +11,7 @@ auth = Blueprint('auth', __name__)
 logger = logging.getLogger(__name__)
 
 
+# Route to serve the user registration
 @auth.route('/register', methods=['POST'])
 def register():
     try:
@@ -19,9 +20,9 @@ def register():
         user_data = request.json
 
         # Get each data
-        username = user_data['username']
-        email = user_data['email']
-        password = user_data['password']
+        username = user_data.get('username')
+        email = user_data.get('email')
+        password = user_data.get('password')
 
         # Check if username or email already exists
         existing_username = User.query.filter_by(username=username).first()
@@ -66,11 +67,39 @@ def register():
         return jsonify({'message': 'An error occurred while registering account'}), 500
 
 
+# Route to serve the user login
 @auth.route('/login', methods=['POST'])
 def login():
-    return "<h1>Testing auth</h1>"
+    try:
+        # Get user login data in json format
+        user_data = request.json
+
+        # Get each data
+        identifier = user_data.get('identifier')
+        password = user_data.get('password')
+        is_email = True if user_data.get('isEmail') == 'true' else False
+
+        if is_email:
+            user = User.query.filter_by(email=identifier).first()
+        else:
+            user = User.query.filter_by(username=identifier).first()
+
+        if user:
+            if bcrypt.check_password_hash(user.password_hash, password):
+                login_user(user)
+                return jsonify({'message': 'Login successful', 'user_id': user.id}), 200
+            else:
+                return jsonify({'message': 'Incorrect password'}), 401
+        else:
+            return jsonify({'message': 'User not found'}), 404
+
+    except Exception as e:
+        logger.error(f'An error occurred: {str(e)}')
+        return jsonify({'message': 'An error occurred while logging in'}), 500
 
 
+# Route to serve the user logout
 @auth.route('/logout')
 def logout():
-    return "<h1>Testing auth</h1>"
+    logout_user()
+    return jsonify({'message': 'User logged out successfully'})
