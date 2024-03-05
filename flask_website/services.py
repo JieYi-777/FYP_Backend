@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
 
 # Create Blueprint object
 services = Blueprint('services', __name__)
@@ -7,4 +7,4 @@ services = Blueprint('services', __name__)
 # Sample
 @services.route('/')
 def home():
-    return "<h1>Testing Home</h1>"
+    return jsonify({'message': 'hello'})

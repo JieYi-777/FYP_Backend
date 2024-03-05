@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -15,7 +16,6 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 # Define db outside so can be imported by models.py
 db = SQLAlchemy()
 
-
 # Create bcrypt object outside to be imported by other files
 bcrypt = Bcrypt()
 
@@ -24,6 +24,9 @@ bcrypt = Bcrypt()
 def create_app():
     # Create Flask instance named app
     app = Flask(__name__)
+
+    # To allow CORS
+    CORS(app)
 
     # Generate random strings of 32 hexadecimal characters for SECRET_KEY of app
     app.config['SECRET_KEY'] = secrets.token_hex(16)
