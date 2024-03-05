@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import secrets
@@ -34,16 +33,6 @@ def create_app():
     # Set Database URI for Flask app and initialize the app
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     db.init_app(app)
-
-    # To set Login Manager to handle session management
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-
-    # Set the function so can use current_user to get the current user's data
-    @login_manager.user_loader
-    def load_user(user_id):
-        from .models import User
-        return User.query.get(int(user_id))
 
     # Initialize bcrypt object, used for encrypt password and check password currently
     bcrypt.init_app(app)

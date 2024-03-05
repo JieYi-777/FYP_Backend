@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-from flask_login import login_user, logout_user
 from .models import User, Notification
 from . import bcrypt, db
 import logging
@@ -86,7 +85,6 @@ def login():
 
         if user:
             if bcrypt.check_password_hash(user.password_hash, password):
-                login_user(user)
                 return jsonify({'message': 'Login successful', 'user_id': user.id}), 200
             else:
                 return jsonify({'message': 'Incorrect password'}), 401
@@ -101,5 +99,4 @@ def login():
 # Route to serve the user logout
 @auth.route('/logout')
 def logout():
-    logout_user()
     return jsonify({'message': 'User logged out successfully'})
