@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from .models import User, Notification
 from . import bcrypt, db
 import logging
@@ -57,7 +58,9 @@ def register():
         db.session.add(welcome_message)
         db.session.commit()
 
-        return jsonify({'message': 'Account created successfully'}), 201
+        access_token = create_access_token(identity=new_user.id)
+
+        return jsonify({'message': 'Account created successfully', 'token': access_token}), 201
 
     except Exception as e:
         # Rollback changes if an error occurs
@@ -85,7 +88,9 @@ def login():
 
         if user:
             if bcrypt.check_password_hash(user.password_hash, password):
-                return jsonify({'message': 'Login successful', 'user_id': user.id}), 200
+                access_token = create_access_token(identity=user.id)
+
+                return jsonify({'message': 'Login successful', 'token': access_token}), 200
             else:
                 return jsonify({'message': 'Incorrect password'}), 401
         else:
@@ -100,3 +105,11 @@ def login():
 @auth.route('/logout')
 def logout():
     return jsonify({'message': 'User logged out successfully'})
+
+@auth.route('/test')
+@jwt_required()
+def test():
+    current_user = get_jwt_identity()
+    print(current_user)
+
+    return jsonify({'message': 'Test good'})

@@ -1,6 +1,8 @@
+from datetime import timedelta
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import secrets
@@ -25,10 +27,15 @@ def create_app():
     app = Flask(__name__)
 
     # To allow CORS
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://192.168.1.119:8080"]}})
 
     # Generate random strings of 32 hexadecimal characters for SECRET_KEY of app
     app.config['SECRET_KEY'] = secrets.token_hex(16)
+
+    # Initialize JWT manager
+    app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+    jwt = JWTManager(app)
 
     # Set Database URI for Flask app and initialize the app
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
