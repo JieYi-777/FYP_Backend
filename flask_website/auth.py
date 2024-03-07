@@ -100,13 +100,13 @@ def login():
             if bcrypt.check_password_hash(user.password_hash, password):
                 access_token = create_access_token(identity=user.id)
 
-                return jsonify({'message': 'Login successful', 'token': access_token}), 200
+                return jsonify({'message': 'Login Successful', 'token': access_token}), 200
 
             # Else, return the password error message
             else:
-                return jsonify({'message': 'Incorrect password'}), 401
+                return jsonify({'message': 'Incorrect Password'}), 401
         else:
-            return jsonify({'message': 'User not found'}), 404
+            return jsonify({'message': 'User Not Found'}), 404
 
     # If any error, logging the message and return the message to user
     except Exception as e:
