@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from .models import User, Notification
 from . import bcrypt, db
 import logging
@@ -63,7 +63,7 @@ def register():
         access_token = create_access_token(identity=new_user.id)
 
         # Return the message with the token
-        return jsonify({'message': 'Account created successfully', 'token': access_token}), 201
+        return jsonify({'message': 'Account Created Successfully', 'token': access_token}), 201
 
     except Exception as e:
         # Rollback changes if an error occurs
@@ -84,7 +84,9 @@ def login():
         # Get each data from the request
         identifier = user_data.get('identifier')
         password = user_data.get('password')
-        is_email = True if user_data.get('isEmail') == 'true' else False
+        is_email = user_data.get('isEmail')
+
+        print(is_email)
 
         # If it is email, search the user using the email, else using the username
         if is_email:
@@ -110,6 +112,13 @@ def login():
     except Exception as e:
         logger.error(f'An error occurred: {str(e)}')
         return jsonify({'message': 'An error occurred while logging in'}), 500
+
+
+# To check the token is valid or not
+@auth.route('/validate-token')
+@jwt_required()
+def validate_token():
+    return jsonify({'message': 'This is a valid token', 'isValid': True})
 
 
 # Route to serve the user logout
