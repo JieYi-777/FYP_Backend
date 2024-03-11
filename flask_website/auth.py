@@ -63,7 +63,7 @@ def register():
         access_token = create_access_token(identity=new_user.id)
 
         # Return the message with the token
-        return jsonify({'message': 'Account Created Successfully', 'token': access_token}), 201
+        return jsonify({'message': 'Account Created Successfully', 'token': access_token, 'username': new_user.username}), 201
 
     except Exception as e:
         # Rollback changes if an error occurs
@@ -100,7 +100,7 @@ def login():
             if bcrypt.check_password_hash(user.password_hash, password):
                 access_token = create_access_token(identity=user.id)
 
-                return jsonify({'message': 'Login Successful', 'token': access_token}), 200
+                return jsonify({'message': 'Login Successful', 'token': access_token, 'username': user.username}), 200
 
             # Else, return the password error message
             else:
