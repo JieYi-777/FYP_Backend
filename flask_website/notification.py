@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify
 
 # Create Blueprint object
-services = Blueprint('services', __name__)
+notification = Blueprint('notification', __name__)
 
 
 # Sample
-@services.route('/')
+@notification.route('/')
 def home():
     return jsonify({'message': 'hello'})

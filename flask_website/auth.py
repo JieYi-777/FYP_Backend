@@ -86,8 +86,6 @@ def login():
         password = user_data.get('password')
         is_email = user_data.get('isEmail')
 
-        print(is_email)
-
         # If it is email, search the user using the email, else using the username
         if is_email:
             user = User.query.filter_by(email=identifier).first()
