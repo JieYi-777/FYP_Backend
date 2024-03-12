@@ -18,8 +18,6 @@ def get_notifications():
         # Get the current user id
         user_id = get_jwt_identity()
 
-        print(user_id)
-
         # Retrieve the user object from the database
         user = User.query.get(user_id)
 
@@ -31,7 +29,7 @@ def get_notifications():
             'id': notification.id,
             'title': notification.title,
             'message': notification.message,
-            'read': notification.read,
+            'has_read': notification.has_read,
             'date_created': notification.date_created
         } for notification in notifications]
 

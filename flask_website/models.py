@@ -56,7 +56,7 @@ class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
     message = db.Column(db.Text, nullable=False)
-    read = db.Column(db.Boolean, default=False)
+    has_read = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
