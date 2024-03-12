@@ -30,9 +30,9 @@ def register():
 
         # If username or email already exists, return error response
         if existing_username:
-            return jsonify({'message': 'Username already exists'}), 400
+            return jsonify({'message': 'Username already exists.'}), 400
         elif existing_email:
-            return jsonify({'message': 'Email already exists'}), 400
+            return jsonify({'message': 'Email already exists.'}), 400
 
         # Create new user object with username, email and encrypted password
         new_user = User(username=username, email=email, password_hash=bcrypt.generate_password_hash(password))
@@ -71,7 +71,7 @@ def register():
 
         # Logging the error in console and return the error message to frontend
         logger.error(f'An error occurred: {str(e)}')
-        return jsonify({'message': 'An error occurred while registering account'}), 500
+        return jsonify({'message': 'An error occurred while registering account.'}), 500
 
 
 # Route to serve the user login and return the token with message
@@ -109,14 +109,14 @@ def login():
     # If any error, logging the message and return the message to user
     except Exception as e:
         logger.error(f'An error occurred: {str(e)}')
-        return jsonify({'message': 'An error occurred while logging in'}), 500
+        return jsonify({'message': 'An error occurred while logging in.'}), 500
 
 
 # To check the token is valid or not
 @auth.route('/validate-token')
 @jwt_required()
 def validate_token():
-    return jsonify({'message': 'This is a valid token', 'isValid': True})
+    return jsonify({'message': 'This is a valid token.', 'isValid': True})
 
 
 # Route to serve the user logout
