@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import User, Notification
 from . import db
@@ -22,19 +22,24 @@ def get_notifications():
         # Retrieve the user object from the database
         user = User.query.get(user_id)
 
-        # Access notifications associated with the user through the relationship
-        notifications = user.notifications
+        if user:
 
-        # Serialize the notifications to JSON
-        serialized_notifications = [{
-            'id': notification.id,
-            'title': notification.title,
-            'message': notification.message,
-            'has_read': notification.has_read,
-            'date_created': notification.date_created
-        } for notification in notifications]
+            # Access notifications associated with the user through the relationship
+            notifications = user.notifications
 
-        return jsonify({'notifications': serialized_notifications}), 200
+            # Serialize the notifications to JSON
+            serialized_notifications = [{
+                'id': notification.id,
+                'title': notification.title,
+                'message': notification.message,
+                'has_read': notification.has_read,
+                'date_created': notification.date_created
+            } for notification in notifications]
+
+            return jsonify({'notifications': serialized_notifications}), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+
     except Exception as e:
         logger.error(e)
         return jsonify({'message': str(e)}), 500
