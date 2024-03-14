@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import User
-from . import db
 import logging
+import mailtrap as mt
+import os
 
 # Create Blueprint object
 email = Blueprint('email', __name__)
@@ -40,16 +41,31 @@ def get_email():
 @jwt_required()
 def send_support_email():
     try:
+        # Get the current user id
+        user_id = get_jwt_identity()
+
+        # Retrieve the user object from the database
+        user = User.query.get(user_id)
+        username = user.username
+
         # Get email data to be sent in json format
         email_data = request.json
 
         # Get each data from the request
-        to_email = email_data.get('to')
         from_email = email_data.get('from')
         email_subject = email_data.get('subject')
         email_content = email_data.get('content')
 
-        print(email_data)
+        # Create mail object ('sender email' and 'to email' is constant since mailtrap free plan limitation)
+        mail = mt.Mail(
+            sender=mt.Address(email="mailtrap@demomailtrap.com", name="Smart Finance Help"),
+            to=[mt.Address(email="limjieyi777@gmail.com")],
+            subject=f"{email_subject}",
+            text=f"From: {username} - {from_email}\n\n{email_content}"
+        )
+
+        client = mt.MailtrapClient(token=os.getenv('MAILTRAP_TOKEN'))
+        client.send(mail)
 
         return jsonify({'message': 'Expect a response within 24 hours.'}), 200
 
