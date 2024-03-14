@@ -64,6 +64,8 @@ def send_support_email():
             text=f"From: {username} - {from_email}\n\n{email_content}"
         )
 
+        # Give the MailTrap token to be used when sending email using its API
+        # Note: The sent email maybe in spam folder
         client = mt.MailtrapClient(token=os.getenv('MAILTRAP_TOKEN'))
         client.send(mail)
 
