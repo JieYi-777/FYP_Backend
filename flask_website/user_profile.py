@@ -11,7 +11,7 @@ user_profile = Blueprint('user_profile', __name__)
 logger = logging.getLogger(__name__)
 
 
-@user_profile.route('/edit-username', methods=['PUT'])
+@user_profile.route('/update-username', methods=['PUT'])
 @jwt_required()
 def edit_username():
     try:
@@ -51,7 +51,7 @@ def edit_username():
         return jsonify({'message': 'An error occurred while updating username.'}), 500
 
 
-@user_profile.route('/edit-email', methods=['PUT'])
+@user_profile.route('/update-email', methods=['PUT'])
 @jwt_required()
 def edit_email():
     try:
