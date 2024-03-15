@@ -67,6 +67,9 @@ def mark_as_read(notification_id):
             return jsonify({'message': 'Notification not found'}), 404
 
     except Exception as e:
+        # Rollback changes if an error occurs
+        db.session.rollback()
+
         logger.error(e)
         return jsonify({'message': str(e)}), 500
 
@@ -94,6 +97,9 @@ def mark_all_as_read():
             return jsonify({'message': 'User not found'}), 404
 
     except Exception as e:
+        # Rollback changes if an error occurs
+        db.session.rollback()
+
         logger.error(e)
         return jsonify({'message': str(e)}), 500
 
