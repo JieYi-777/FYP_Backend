@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @user_profile.route('/update-username', methods=['PUT'])
 @jwt_required()
-def edit_username():
+def update_username():
     try:
 
         # Get the current user id
@@ -53,7 +53,7 @@ def edit_username():
 
 @user_profile.route('/update-email', methods=['PUT'])
 @jwt_required()
-def edit_email():
+def update_email():
     try:
 
         # Get the current user id
