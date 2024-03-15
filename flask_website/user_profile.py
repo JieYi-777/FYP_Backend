@@ -131,3 +131,27 @@ def change_password():
 
         logger.error(e)
         return jsonify({'message': 'An error occurred while changing password.'}), 500
+
+
+# To get user notification enabled
+@user_profile.route('/notification-enable-check')
+@jwt_required()
+def get_notification_enabled():
+    try:
+
+        # Get the current user id
+        user_id = get_jwt_identity()
+
+        # Retrieve the user object from the database
+        user = User.query.get(user_id)
+
+        if user:
+            notification_enabled = user.notification_enabled
+
+            return jsonify({'notification_enabled': notification_enabled}), 200
+        else:
+            return jsonify({'message': 'User not found.'}), 404
+
+    except Exception as e:
+        logger.error(e)
+        return jsonify({'message': str(e)}), 500

@@ -29,7 +29,7 @@ def get_email():
 
             return jsonify({'email': email}), 200
         else:
-            return jsonify({'message': 'User not found.'}), 404
+            return jsonify({'message': 'Account not found.'}), 404
 
     except Exception as e:
         logger.error(e)
