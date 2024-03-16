@@ -134,7 +134,7 @@ def change_password():
 
 
 # To get user notification enabled
-@user_profile.route('/notification-enable-check')
+@user_profile.route('/check-notification-enabled')
 @jwt_required()
 def get_notification_enabled():
     try:
@@ -145,6 +145,7 @@ def get_notification_enabled():
         # Retrieve the user object from the database
         user = User.query.get(user_id)
 
+        # If has user, then get the notification_enabled value and return it
         if user:
             notification_enabled = user.notification_enabled
 
@@ -155,3 +156,38 @@ def get_notification_enabled():
     except Exception as e:
         logger.error(e)
         return jsonify({'message': str(e)}), 500
+
+
+# To update the user's notification enabled value (Boolean)
+@user_profile.route('/update-notification-enabled', methods=['PUT'])
+@jwt_required()
+def update_notification_enabled():
+    try:
+
+        # Get the current user id
+        user_id = get_jwt_identity()
+
+        # Retrieve the user object from the database
+        user = User.query.get(user_id)
+
+        # Check the user is existed or not
+        if user is None:
+            return jsonify({'message': 'Account Not Found'}), 404
+
+        # Get the new notification enabled value from the request
+        new_notification_enabled = request.json.get('notification_enabled')
+
+        # Update the notification enabled
+        user.notification_enabled = new_notification_enabled
+
+        # Save changes to the database
+        db.session.commit()
+
+        return jsonify({'message': 'Notification enabled updated successfully.'}), 200
+
+    except Exception as e:
+        # Rollback changes if an error occurs
+        db.session.rollback()
+
+        logger.error(e)
+        return jsonify({'message': 'An error occurred while updating notification enabled.'}), 500
