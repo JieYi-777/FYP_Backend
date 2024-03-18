@@ -3,6 +3,7 @@ from flask_website.notifications import notifications
 from flask_website.auth import auth
 from flask_website.email import email
 from flask_website.user_profile import user_profile
+from flask_website.expense import expense
 
 # Create the flask app
 app = create_app()
@@ -12,6 +13,7 @@ app.register_blueprint(auth, url_prefix="/auth")
 app.register_blueprint(notifications, url_prefix="/notifications")
 app.register_blueprint(email, url_prefix="/email")
 app.register_blueprint(user_profile, url_prefix="/user-profile")
+app.register_blueprint(expense, url_prefix="/expense")
 
 # Run the script
 if __name__ == '__main__':
