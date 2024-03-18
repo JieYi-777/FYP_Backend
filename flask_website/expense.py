@@ -67,3 +67,40 @@ def add_expense():
 
         logger.error(e)
         return jsonify({'message': 'An error occurred while adding expense.'}), 500
+
+
+# To get all the expenses related to the user
+@expense.route('')
+@jwt_required()
+def get_all_expenses():
+    try:
+
+        # Get the current user id
+        user_id = get_jwt_identity()
+
+        # Retrieve the user object from the database
+        user = User.query.get(user_id)
+
+        if user:
+
+            # Access expenses associated with the user through the relationship
+            expenses = user.expenses
+
+            # Serialize the notifications to JSON
+            serialized_expenses = [{
+                'id': expense.id,
+                'title': expense.title,
+                'date': expense.date,
+                'amount': expense.amount,
+                'category_id': expense.category_id,
+                'category_name': expense.category.name,
+                'description': expense.description
+            } for expense in expenses]
+
+            return jsonify({'expenses': serialized_expenses}), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+
+    except Exception as e:
+        logger.error(e)
+        return jsonify({'message': str(e)}), 500
