@@ -1,6 +1,8 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import desc
+
 from .models import User, Expense, Category
 from . import db
 import logging
@@ -83,10 +85,10 @@ def get_all_expenses():
 
         if user:
 
-            # Access expenses associated with the user through the relationship
-            expenses = user.expenses
+            # Access expenses associated with the user, and order by date in descending order
+            expenses = Expense.query.filter_by(user_id=user_id).order_by(desc(Expense.date)).all()
 
-            # Serialize the notifications to JSON
+            # Serialize the expenses to JSON
             serialized_expenses = [{
                 'id': expense.id,
                 'title': expense.title,
