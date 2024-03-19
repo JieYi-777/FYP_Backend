@@ -106,3 +106,47 @@ def get_all_expenses():
     except Exception as e:
         logger.error(e)
         return jsonify({'message': str(e)}), 500
+
+
+@expense.route('/update-expense/<expense_id>', methods=['PUT'])
+@jwt_required()
+def update_expense(expense_id):
+    try:
+
+        # Get the current user id
+        user_id = get_jwt_identity()
+
+        # Get expense data to be store from request
+        expense_data = request.json
+
+        # Get each data from the request
+        title = expense_data.get('title')
+        date = datetime.fromisoformat(expense_data.get('date'))
+        amount = expense_data.get('amount')
+        category_id = expense_data.get('category_id')
+        description = expense_data.get('description')
+
+        # Update the expense
+        updated_rows = Expense.query.filter_by(id=expense_id, user_id=user_id).update(
+            {
+                'title': title,
+                'date': date,
+                'amount': amount,
+                'category_id': category_id,
+                'description': description
+            }
+        )
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        if updated_rows:
+            return jsonify({'message': "Expense updated successfully."}), 200
+        else:
+            return jsonify({'message': "No expense found"}), 404
+
+    except Exception as e:
+        db.session.rollback()
+
+        logger.error(e)
+        return jsonify({'message': 'An error occurred while updating expense.'}), 500
