@@ -127,7 +127,7 @@ def update_expense(expense_id):
         description = expense_data.get('description')
 
         # Update the expense
-        updated_rows = Expense.query.filter_by(id=expense_id, user_id=user_id).update(
+        updated_expense = Expense.query.filter_by(id=expense_id, user_id=user_id).update(
             {
                 'title': title,
                 'date': date,
@@ -140,13 +140,39 @@ def update_expense(expense_id):
         # Commit the changes to the database
         db.session.commit()
 
-        if updated_rows:
+        if updated_expense:
             return jsonify({'message': "Expense updated successfully."}), 200
         else:
-            return jsonify({'message': "No expense found"}), 404
+            return jsonify({'message': "No Expense Found"}), 404
 
     except Exception as e:
         db.session.rollback()
 
         logger.error(e)
         return jsonify({'message': 'An error occurred while updating expense.'}), 500
+
+
+@expense.route('/delete-expense/<expense_id>', methods=['DELETE'])
+@jwt_required()
+def delete_expense(expense_id):
+    try:
+
+        # Get the current user id
+        user_id = get_jwt_identity()
+
+        # Delete the expense directly using a query
+        deleted_expense = Expense.query.filter_by(id=expense_id, user_id=user_id).delete()
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        if deleted_expense:
+            return jsonify({'message': 'Expense deleted successfully.'}), 200
+        else:
+            return jsonify({'message': 'Expense Not Found'}), 404
+
+    except Exception as e:
+        db.session.rollback()
+
+        logger.error(e)
+        return jsonify({'message': 'An error occurred while deleting expense.'}), 500
