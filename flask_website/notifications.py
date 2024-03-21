@@ -25,7 +25,7 @@ def get_notifications():
         if user:
 
             # Access notifications associated with the user through the relationship
-            notifications = user.notifications
+            notifications = Notification.query.filter_by(user_id=user_id).all()
 
             # Serialize the notifications to JSON
             serialized_notifications = [{
