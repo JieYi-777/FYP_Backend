@@ -1,8 +1,8 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from sqlalchemy import desc
-from .models import User, Expense, Category
+from sqlalchemy import desc, extract
+from .models import User, Expense, Category, Budget, Notification
 from . import db
 import logging
 
@@ -175,3 +175,70 @@ def delete_expense(expense_id):
 
         logger.error(e)
         return jsonify({'message': 'An error occurred while deleting expense.'}), 500
+
+
+# To check the current month expense will exceed the budget or not
+@expense.route('/check-monthly-expense', methods=['POST'])
+@jwt_required()
+def check_monthly_expense_with_budget():
+    try:
+        # Get the current user id
+        user_id = get_jwt_identity()
+
+        # Get expense data to be store from request
+        category_id = request.json.get('category_id')
+
+        # Get the current year and month
+        current_year = datetime.now().year
+        current_month = datetime.now().month
+
+        # Query expenses for the given user, category, and current year/month
+        total_expense = db.session.query(db.func.sum(Expense.amount)).filter(
+            Expense.user_id == user_id,
+            Expense.category_id == category_id,
+            extract('year', Expense.date) == current_year,
+            extract('month', Expense.date) == current_month
+        ).scalar() or 0
+
+        # Query the budget for the given user and category
+        budget = Budget.query.filter_by(user_id=user_id, category_id=category_id).first()
+
+        print(total_expense)
+        print(budget.amount)
+
+        if budget:
+            # Compare total expense with the budget amount
+            if total_expense >= budget.amount:
+                # Update is_exceed field of the budget to True
+                budget.is_exceed = True
+            else:
+                # Reset is_exceed field of the budget to False
+                budget.is_exceed = False
+
+            db.session.commit()
+
+            # Create a notification if expenses reach or exceed the budget
+            if total_expense >= budget.amount:
+                if total_expense == budget.amount:
+                    title = 'Budget Reached'
+                    message = f'Your expenses in category {budget.category.name} have reached the budget limit.'
+                else:
+                    title = 'Budget Exceeded'
+                    message = f'Your expenses in category {budget.category.name} have exceeded the budget.'
+
+                notification = Notification(
+                    title=title,
+                    message=message,
+                    user_id=user_id
+                )
+                db.session.add(notification)
+                db.session.commit()
+
+        return jsonify({'message': 'Monthly expenses have been checked against the budget.'}), 200
+
+    except Exception as e:
+        # Rollback changes if an error occurs
+        db.session.rollback()
+
+        logger.error(e)
+        return jsonify({'message': 'An error occurred while checking the monthly expense and budget.'}), 500
