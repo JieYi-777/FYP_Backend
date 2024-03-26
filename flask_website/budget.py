@@ -1,6 +1,8 @@
+from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .models import User, Budget
+from sqlalchemy import extract
+from .models import User, Budget, Expense, Notification
 from . import db
 import logging
 
@@ -144,3 +146,63 @@ def delete_budget(budget_id):
 
         logger.error(e)
         return jsonify({'message': 'An error occurred while deleting budget.'}), 500
+
+
+# To check the current month budget will be exceeded or not
+@budget.route('/check-monthly-budget', methods=['POST'])
+@jwt_required()
+def check_monthly_budget_with_expense():
+    try:
+        # Get the current user id
+        user_id = get_jwt_identity()
+
+        # Get expense data to be store from request
+        category_id = request.json.get('category_id')
+
+        # Get the current year and month
+        current_year = datetime.now().year
+        current_month = datetime.now().month
+
+        # Query expenses for the given user, category, and current year/month
+        total_expense = db.session.query(db.func.sum(Expense.amount)).filter(
+            Expense.user_id == user_id,
+            Expense.category_id == category_id,
+            extract('year', Expense.date) == current_year,
+            extract('month', Expense.date) == current_month
+        ).scalar() or 0
+
+        # Query the budget for the given user and category
+        budget = Budget.query.filter_by(user_id=user_id, category_id=category_id).first()
+
+        if budget:
+
+            # Compare total expense with the budget amount
+            if total_expense < budget.amount:
+                # Reset is_exceed field of the budget to False
+                budget.is_exceed = False
+
+            db.session.commit()
+
+            # Check if the budget is less than the total expenses
+            if budget.amount < total_expense:
+                # Send a notification indicating that the budget is less than the expenses
+                title = 'Budget Below Total Expenses'
+                message = f'Your budget for {budget.category.name} is currently lower than your total expenses for ' \
+                          f'this month. Please review your budget allocation to ensure it covers your spending needs.'
+
+                notification = Notification(
+                    title=title,
+                    message=message,
+                    user_id=user_id
+                )
+                db.session.add(notification)
+                db.session.commit()
+
+        return jsonify({'message': 'Monthly budget have been checked against the expense.'}), 200
+
+    except Exception as e:
+        # Rollback changes if an error occurs
+        db.session.rollback()
+
+        logger.error(e)
+        return jsonify({'message': 'An error occurred while checking the monthly expense and budget.'}), 500
