@@ -203,10 +203,9 @@ def check_monthly_expense_with_budget():
         # Query the budget for the given user and category
         budget = Budget.query.filter_by(user_id=user_id, category_id=category_id).first()
 
-        print(total_expense)
-        print(budget.amount)
-
         if budget:
+            is_exceed_value = budget.is_exceed
+
             # Compare total expense with the budget amount
             if total_expense >= budget.amount:
                 # Update is_exceed field of the budget to True
@@ -218,7 +217,7 @@ def check_monthly_expense_with_budget():
             db.session.commit()
 
             # Create a notification if expenses reach or exceed the budget
-            if total_expense >= budget.amount:
+            if is_exceed_value is False and total_expense >= budget.amount:
                 if total_expense == budget.amount:
                     title = 'Budget Reached'
                     message = f'Your expenses in category {budget.category.name} have reached the budget limit.'
