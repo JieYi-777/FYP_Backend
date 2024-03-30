@@ -5,12 +5,67 @@ from sqlalchemy import desc, extract
 from .models import User, Expense, Category, Budget, Notification
 from . import db
 import logging
+import os
+import joblib
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 
 # Create Blueprint object
 expense = Blueprint('expense', __name__)
 
 # Get a logger for logging
 logger = logging.getLogger(__name__)
+
+# Get the directory path of the current script (app.py)
+current_dir = os.path.dirname(__file__)
+
+# Define the path to the folder containing the model file
+models_dir = os.path.join(current_dir, 'machine_learning_models', 'categorize_expense')
+
+# Specify the path to the model file
+model_file_path = os.path.join(models_dir, 'nb_model.pkl')
+
+# Specify the vectorizer file
+vectorizer_file_path = os.path.join(models_dir, 'vectorizer.pkl')
+
+# Load the trained model and vectorizer
+nb_model = joblib.load(model_file_path)
+vectorizer = joblib.load(vectorizer_file_path)
+
+
+# Download the required resources, one time only
+# nltk.download('stopwords')
+# nltk.download('punkt')
+
+
+# To preprocess the text before use in machine learning model
+def preprocess_text(text):
+    # Remove HTML tags
+    text = re.sub(r'<.*?>', '', text)
+
+    # Remove non-alphanumeric characters
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
+
+    # Convert to lowercase
+    text = text.lower()
+
+    # Tokenize the text
+    tokens = nltk.word_tokenize(text)
+
+    # Remove stop words
+    stop_words = set(stopwords.words('english'))
+    tokens = [word for word in tokens if word not in stop_words]
+
+    # Stem the words
+    stemmer = PorterStemmer()
+    tokens = [stemmer.stem(word) for word in tokens]
+
+    # Join the tokens back into a single string
+    preprocessed_text = ' '.join(tokens)
+
+    return preprocessed_text
 
 
 # To get the expense category list
@@ -241,3 +296,36 @@ def check_monthly_expense_with_budget():
 
         logger.error(e)
         return jsonify({'message': 'An error occurred while checking the monthly expense and budget.'}), 500
+
+
+# To predict and suggest the category of the expense
+@expense.route('/predict-expense-category', methods=['POST'])
+@jwt_required()
+def predict_expense_category():
+    try:
+        # Get expense data to be store from request
+        expense_data = request.json
+
+        # Get each data from the request
+        title = expense_data.get('title')
+        description = expense_data.get('description')
+
+        # Concatenate title and description
+        combined_text = f"{title} {description}"
+
+        # Preprocess combined text
+        preprocessed_combined_text = preprocess_text(combined_text)
+
+        # Vectorize combined text
+        combined_text_vectorized = vectorizer.transform([preprocessed_combined_text])
+
+        # Make predictions
+        predictions = nb_model.predict(combined_text_vectorized)
+
+        # Get the prediction (it is in array/list form)
+        prediction = predictions[0]
+
+        return jsonify({'prediction': prediction})
+    except Exception as e:
+        logger.error(e)
+        return jsonify({'message': 'An error occurred while predicting the expense category.'}), 500
