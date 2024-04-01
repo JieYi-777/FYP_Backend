@@ -1,5 +1,6 @@
 from datetime import timedelta
 from .resetBudgetAlert import start_scheduler
+from .predictExpense import start_predict_expense_scheduler
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -47,6 +48,9 @@ def create_app():
 
     # To start the scheduler to reset the budget model's is_exceed to 0 on the first day of every month at 12:00 AM
     start_scheduler(db, app)
+
+    # To start the scheduler to predict the expense for each user's category on first day of every month at 12.15am
+    start_predict_expense_scheduler(db, app)
 
     # To create tables for the database
     # from .models import User, Category, Expense, Budget, Notification
