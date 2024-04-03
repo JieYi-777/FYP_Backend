@@ -18,5 +18,5 @@ app.register_blueprint(expense, url_prefix="/expense")
 app.register_blueprint(budget, url_prefix="/budget")
 
 # Run the script
-if __name__ == '__main__':
-    app.run(debug=False)
+# if __name__ == '__main__':
+#     app.run(debug=False)
