@@ -53,10 +53,10 @@ def create_app():
     start_predict_expense_scheduler(db, app)
 
     # To create tables for the database
-    from .models import User, Category, Expense, Budget, Notification
-    # Create the application context
-    with app.app_context():
-        # Create all tables
-        db.create_all()
+    # from .models import User, Category, Expense, Budget, Notification
+    # # Create the application context
+    # with app.app_context():
+    #     # Create all tables
+    #     db.create_all()
 
     return app
