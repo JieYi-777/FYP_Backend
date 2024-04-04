@@ -29,7 +29,7 @@ def create_app():
     app = Flask(__name__)
 
     # To allow CORS
-    CORS(app, resources={r"/*": {"origins": [os.getenv('ORIGIN')]}})
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://192.168.1.119:8080"]}})
 
     # Generate random strings of 32 hexadecimal characters for SECRET_KEY of app
     app.config['SECRET_KEY'] = secrets.token_hex(16)
