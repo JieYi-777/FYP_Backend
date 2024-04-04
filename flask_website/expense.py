@@ -36,8 +36,8 @@ vectorizer = joblib.load(vectorizer_file_path)
 
 
 # Download the required resources, one time only
-# nltk.download('stopwords')
-# nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('punkt')
 
 
 # To preprocess the text before use in machine learning model
@@ -324,8 +324,6 @@ def predict_expense_category():
 
         # Get the prediction (it is in array/list form)
         prediction = predictions[0]
-
-        print(prediction)
 
         return jsonify({'prediction': prediction})
     except Exception as e:
