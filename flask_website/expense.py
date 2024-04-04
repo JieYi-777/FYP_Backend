@@ -325,6 +325,8 @@ def predict_expense_category():
         # Get the prediction (it is in array/list form)
         prediction = predictions[0]
 
+        print(prediction)
+
         return jsonify({'prediction': prediction})
     except Exception as e:
         logger.error(e)
