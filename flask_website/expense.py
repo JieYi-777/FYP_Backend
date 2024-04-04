@@ -35,9 +35,14 @@ nb_model = joblib.load(model_file_path)
 vectorizer = joblib.load(vectorizer_file_path)
 
 
-# Download the required resources, one time only
-nltk.download('stopwords')
-nltk.download('punkt')
+# Check if NLTK resources are already downloaded
+if not nltk.data.find('corpora/stopwords'):
+    # NLTK resources not found, download them
+    nltk.download('stopwords')
+
+if not nltk.data.find('tokenizers/punkt'):
+    # NLTK resources not found, download them
+    nltk.download('punkt')
 
 
 # To preprocess the text before use in machine learning model
