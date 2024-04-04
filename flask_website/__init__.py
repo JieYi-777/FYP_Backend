@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import secrets
 import os
+import nltk
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -51,6 +52,9 @@ def create_app():
 
     # To start the scheduler to predict the expense for each user's category on first day of every month at 12.15am
     start_predict_expense_scheduler(db, app)
+
+    nltk.download('stopwords')
+    nltk.download('punkt')
 
     # To create tables for the database
     # from .models import User, Category, Expense, Budget, Notification
