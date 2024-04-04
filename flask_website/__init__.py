@@ -28,8 +28,8 @@ def create_app():
     # Create Flask instance named app
     app = Flask(__name__)
 
-    # To allow CORS
-    CORS(app, resources={r"/*": {"origins": [os.getenv('ORIGIN')]}})
+    # To allow CORS, split by ', ' to the origin links into list/array of links
+    CORS(app, resources={r"/*": {"origins": os.getenv('ORIGIN').split(', ')}})
 
     # Generate random strings of 32 hexadecimal characters for SECRET_KEY of app
     app.config['SECRET_KEY'] = secrets.token_hex(16)
