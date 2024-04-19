@@ -99,7 +99,7 @@ def train_and_predict_expenses(db, app):
 # Start the scheduler
 def start_predict_expense_scheduler(db, app):
     # Define the cron trigger to execute the task on the first day of each month at 12:15 AM
-    trigger = CronTrigger(day='19', hour='18', minute='10')
+    trigger = CronTrigger(day='19', hour='18', minute='20')
 
     # Add the job with the specified trigger
     scheduler.add_job(train_and_predict_expenses, trigger, args=[db, app])
