@@ -74,7 +74,7 @@ def train_and_predict_expenses(db, app):
                     next_month_expense = model.predict([[next_month_index]])
                     next_month_expense = round(float(next_month_expense[0]), 2)
 
-                    # print('prediction:', next_month_expense)
+                    print('prediction:', next_month_expense)
 
                     # If the predicted total expense exceeds the budget, then send notification to tell user
                     if next_month_expense > budget.amount:
@@ -99,7 +99,7 @@ def train_and_predict_expenses(db, app):
 # Start the scheduler
 def start_predict_expense_scheduler(db, app):
     # Define the cron trigger to execute the task on the first day of each month at 12:15 AM
-    trigger = CronTrigger(day='19', hour='18', minute='20')
+    trigger = CronTrigger(day='19', hour='18', minute='35')
 
     # Add the job with the specified trigger
     scheduler.add_job(train_and_predict_expenses, trigger, args=[db, app])
